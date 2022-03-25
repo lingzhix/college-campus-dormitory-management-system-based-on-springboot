@@ -1,0 +1,91 @@
+<div class="layuimini-main">
+    <div class="layui-form layuimini-form" lay-filter="updateForm">
+        <input type="hidden" name="id" id="id">
+        <div class="layui-form-item">
+            <label class="layui-form-label required">开始时间</label>
+            <div class="layui-input-block">
+                <input type="text" name="startTime" id="startTime" lay-verify="datetime" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">结束时间</label>
+            <div class="layui-input-block">
+                <input type="text" name="endTime" id="endTime" lay-verify="datetime" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注信息</label>
+            <div class="layui-input-block">
+                <textarea name="remark" class="layui-textarea" placeholder="请输入备注信息"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .layui-laydate-content>.layui-laydate-list {
+        padding-bottom: 0px;
+        overflow: hidden;
+    }
+    .layui-laydate-content>.layui-laydate-list>li{
+        width:50%
+    }
+
+</style>
+
+<script>
+    layui.use(['form', 'table','axios','laydate'], function () {
+        let form = layui.form,
+            layer = layui.layer,
+            axios = layui.axios,
+            laydate = layui.laydate,
+            $ = layui.$;
+
+
+
+        //日期
+        laydate.render({
+            elem: '#startTime'
+            ,type:'datetime'
+            ,format:'yyyy-MM-dd HH:mm'
+        });
+
+
+        laydate.render({
+            elem: '#endTime'
+            ,type:'datetime'
+            ,format:'yyyy-MM-dd HH:mm'
+        });
+
+        /**
+         * 初始化表单，要加上，不然刷新部分组件可能会不加载
+         */
+
+
+            // 当前弹出层，防止ID被覆盖
+        let parentIndex = layer.index;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            axios.post('absence/update',data.field).then(function(response){
+                if(response.code == 200){
+                    layer.msg(response.msg);
+                    window.reload();
+                }
+                layer.close(parentIndex);
+            }).catch(function (error) {
+                layer.msg(error);
+            });
+            return false;
+        });
+
+    });
+</script>

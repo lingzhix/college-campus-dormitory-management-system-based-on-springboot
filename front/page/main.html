@@ -1,0 +1,152 @@
+<style>
+    .welcome .layui-card {border:1px solid #f2f2f2;border-radius:5px;}
+    .welcome .icon {margin-right:10px;color:#1aa094;}
+    .welcome .layuimini-qiuck-module a i {display:inline-block;width:100%;height:60px;line-height:60px;text-align:center;border-radius:2px;font-size:30px;background-color:#F8F8F8;color:#333;transition:all .3s;-webkit-transition:all .3s;}
+    .welcome .layuimini-qiuck-module a cite {position:relative;top:2px;display:block;color:#666;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;font-size:14px;}
+    .welcome .welcome-module {width:100%;height:210px;}
+    .welcome .main_btn > p {height:40px;}
+</style>
+<div class="layuimini-container layuimini-page-anim">
+    <div class="layuimini-main welcome">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md8">
+                <div class="layui-row">
+                    <div class="layui-card" style="height: 400px;">
+                        <div class="layui-card-header"><i class="fa fa-warning icon"></i>数据统计</div>
+                        <div class="layui-card-body">
+                            <div class="welcome-module" style="height: 350px;overflow: auto;">
+                                <table class="layui-table" lay-skin="line">
+                                    <tr>
+                                        <th>楼宇</th>
+                                        <th>宿舍数量</th>
+                                        <th>入住人数</th>
+                                        <th>闲置数量</th>
+                                        <th>使用率</th>
+                                    </tr>
+                                    <tbody id="building-data"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-card">
+                        <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>报表统计</div>
+                        <div class="layui-card-body">
+                            <div id="echarts-records" style="min-height:365px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md4">
+
+                <div class="layui-card">
+                    <div class="layui-card-header"><i class="fa fa-fire icon"></i>版本信息</div>
+                    <div class="layui-card-body layui-text">
+                        <table class="layui-table">
+                            <colgroup>
+                                <col width="100">
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <td>项目名称</td>
+                                <td>
+                                    宿舍智慧管理系统
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>当前版本</td>
+                                <td>v1.0.0</td>
+                            </tr>
+                            <tr>
+                                <td>后端技术</td>
+                                <td>SpringBoot</td>
+                            </tr>
+                            <tr>
+                                <td>前端技术</td>
+                                <td>Layui框架</td>
+                            </tr>
+                            <tr>
+                                <td>制作人</td>
+                                <td>凌志祥</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['layer','echarts'], function () {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            echarts = layui.echarts;
+
+        if(store.getLoginType() == 1){
+            $('.welcome').empty();
+            $('.welcome').append("欢迎登入学生宿舍管理系统");
+            return;
+        }
+
+        function loadBuilding(){
+            axios.get('main/building',{limit:1000}).then(function (response) {
+                response.data.forEach(item=>{
+                    let html = `<tr>
+                                <td>${item.name}</td>
+                                <td>${item.all}</td>
+                                <td>${item.used}</td>
+                                <td>${item.unused}</td>
+                                <td>${item.percent}%</td>
+                            </tr>`
+
+                    $('#building-data').append(html);
+                })
+            });
+        }
+        loadBuilding();
+
+
+        /**
+         * 报表功能
+         */
+
+        function loadReport(){
+            axios.get('main/building',{limit:1000}).then(function (response) {
+                let used = response.data.map(item=>item.used);
+                let name = response.data.map(item=>item.name);
+                loadEchars(name,used);
+            });
+        }
+
+        loadReport();
+
+        function loadEchars(name,values){
+            let echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
+            let option = {
+                xAxis: {
+                    type: 'category',
+                    data: name
+                },
+                tooltip: {},
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: values,
+                    type: 'bar',
+                    showBackground: true,
+                    backgroundStyle: {
+                        color: 'rgba(220, 220, 220, 0.8)'
+                    }
+                }]
+            };
+            echartsRecords.setOption(option);
+            window.onresize = function () { // echarts 窗口缩放自适应
+                echartsRecords.resize();
+            }
+        }
+
+
+    });
+</script>

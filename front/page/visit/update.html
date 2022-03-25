@@ -1,0 +1,126 @@
+<div class="layuimini-main">
+    <div class="layui-form layuimini-form" lay-filter="updateForm">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">访客姓名</label>
+            <div class="layui-input-block">
+                <input type="hidden" name="id" id="id">
+                <input type="text" name="visitor" id="visitor" lay-verify="required" lay-reqtext="访客姓名不能为空" placeholder="请输入访客姓名" value="" class="layui-input" autocomplete="off">
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">电话</label>
+            <div class="layui-input-block">
+                <input type="text" name="phone" id="phone" lay-verify="required" lay-reqtext="电话不能为空" placeholder="请输入电话" autocomplete="off"  class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">访客性别</label>
+            <div class="layui-input-block">
+                <select name="sex" lay-verify="required">
+                    <option value="0">男</option>
+                    <option value="1">女</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">身份证号</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input" name="idcard" id="idcard" lay-verify="required" lay-reqtext="身份证号不能为空" placeholder="请输入身份证号" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">来访时间</label>
+            <div class="layui-input-block">
+                <input type="text" name="visitTime" id="visitTime" lay-verify="datetime" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">离开时间</label>
+            <div class="layui-input-block">
+                <input type="text" name="leaveTime" id="leaveTime" lay-verify="datetime" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注信息</label>
+            <div class="layui-input-block">
+                <textarea name="remark" id="remark" class="layui-textarea" placeholder="请输入备注信息"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .layui-laydate-content>.layui-laydate-list {
+        padding-bottom: 0px;
+        overflow: hidden;
+    }
+    .layui-laydate-content>.layui-laydate-list>li{
+        width:50%
+    }
+
+</style>
+
+
+<script>
+    layui.use(['form', 'table','axios','ztree','laydate'], function () {
+        let form = layui.form,
+            layer = layui.layer,
+            axios = layui.axios,
+            laydate = layui.laydate,
+            $ = layui.$;
+
+
+
+
+        //日期
+        laydate.render({
+            elem: '#visitTime'
+            ,type:'datetime'
+            ,format:'yyyy-MM-dd HH:mm'
+        });
+        laydate.render({
+            elem: '#leaveTime'
+            ,type:'datetime'
+            ,format:'yyyy-MM-dd HH:mm'
+        });
+
+        /**
+         * 初始化表单，要加上，不然刷新部分组件可能会不加载
+         */
+
+
+            // 当前弹出层，防止ID被覆盖
+        let parentIndex = layer.index;
+
+
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            axios.post('visit/update',data.field).then(function(response){
+                if(response.code == 200){
+                    layer.msg(response.msg);
+                    window.reload();
+                }
+                layer.close(parentIndex);
+            }).catch(function (error) {
+                layer.msg(error);
+            });
+            return false;
+        });
+
+    });
+</script>
